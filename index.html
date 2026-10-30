@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080909">
+<title>HARUMAN 4-1 CARD!</title>
+
+<style>
+:root{
+  --bg:#080909;
+  --panel:#101314;
+  --panel2:#151819;
+  --line:#343b3e;
+  --orange:#ff9418;
+  --yellow:#ffc52e;
+  --text:#f7f5f0;
+  --muted:#a7b0b4;
+  --red:#ff5151;
+  --green:#55dc83;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer;transition:.15s}
+button:active{transform:scale(.98)}
+.app{max-width:560px;margin:auto;padding:14px 14px 40px;overflow:hidden}
+.hero{
+  position:relative;overflow:hidden;text-align:center;
+  padding:30px 15px 25px;margin-bottom:22px;
+  border:1px solid #4d3418;border-radius:20px;
+  background:
+    radial-gradient(ellipse at 50% 100%,#63350955,transparent 60%),
+    linear-gradient(145deg,#191919,#050505 70%);
+}
+.hero:before,.hero:after{
+  content:"";position:absolute;width:105px;height:150px;
+  border:1px solid #ff9d2d55;border-radius:10px;
+  transform:rotate(-25deg);pointer-events:none;
+}
+.hero:before{left:-45px;top:12px}
+.hero:after{right:-45px;bottom:-60px;transform:rotate(25deg)}
+.crown{font-size:31px;color:var(--yellow);margin-bottom:7px}
+.logo{
+  font-size:clamp(27px,7vw,43px);font-weight:1000;
+  letter-spacing:-1.7px;line-height:1.05;
+  text-shadow:0 3px 20px #ff961833;
+}
+.logo .number{color:var(--orange)}
+.logo .cardword{display:block;color:var(--yellow);font-style:italic}
+.tagline{color:#d1d4d4;font-size:13px;margin-top:14px}
+.suit{position:absolute;font-size:40px;opacity:.25;color:var(--orange)}
+.suit.s1{left:15px;top:20px;transform:rotate(-20deg)}
+.suit.s2{right:15px;top:20px;transform:rotate(20deg)}
+.suit.s3{left:22px;bottom:8px}
+.suit.s4{right:22px;bottom:8px}
+
+h1{font-size:25px;margin:0 0 7px}
+h2{font-size:17px;margin:0}
+p{line-height:1.5}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.section-intro{margin:0 0 18px;color:#bfc5c7}
+.card{
+  position:relative;background:linear-gradient(145deg,#111516,#0b0d0e);
+  border:1px solid var(--line);border-radius:17px;
+  padding:17px;margin:14px 0;
+  box-shadow:0 7px 22px #0003;
+}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.card-icon{
+  width:35px;height:35px;border-radius:10px;
+  display:grid;place-items:center;flex-shrink:0;
+  background:#ff9b1819;color:var(--yellow);font-size:21px;
+}
+.card-head .muted{margin-left:auto;text-align:right;color:var(--yellow)}
+label{display:block;font-weight:600;font-size:13px;margin:15px 0 8px}
+input,select{
+  width:100%;min-width:0;background:#15191b;color:var(--text);
+  border:1px solid #465054;border-radius:11px;
+  padding:13px 14px;outline:none;
+}
+input::placeholder{color:#8d999e}
+input:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 2px #ff941822}
+option{background:#15191b;color:white}
+button{border:0;border-radius:11px;padding:13px 15px;font-weight:750}
+.primary{
+  color:#15100a;background:linear-gradient(110deg,#ffab20,#ff8a13);
+  box-shadow:0 4px 14px #ff941822;
+}
+.primary:hover{filter:brightness(1.08)}
+.secondary{color:var(--yellow);background:#19160f;border:1px solid #72501c}
+.outline{color:var(--text);background:#121516;border:1px solid #42494c}
+.full{width:100%}
+.add-row{display:flex;gap:9px;margin-top:12px}
+.add-row input{flex:1}
+.add-row button{background:var(--orange);color:#171009}
+.players{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px 8px 13px;border:1px solid #424a4d;
+  border-radius:25px;background:#141718;font-size:13px;
+}
+.chip button{background:transparent;color:#b9c0c2;padding:0 2px;font-size:18px}
+.note{display:flex;gap:9px;align-items:flex-start;margin-top:14px}
+.note .info{color:#89969a;font-size:17px}
+.history-item,.balance-item,.settlement-item{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 0;border-top:1px solid #282e30;
+}
+.history-item:first-child,.balance-item:first-child,.settlement-item:first-child{border-top:0}
+.history-item small{display:block;color:var(--muted);font-size:11px;margin-top:5px}
+.money{white-space:nowrap;font-weight:750}
+.positive{color:var(--green)}
+.negative{color:var(--red)}
+.empty{
+  padding:20px 10px;text-align:center;color:var(--muted);
+  border:1px solid #333b3e;border-radius:12px;background:#0c0e0f;
+}
+.empty .empty-suit{font-size:28px;color:#747e82;margin-bottom:8px}
+.actions{display:grid;gap:10px;margin-top:19px}
+.hidden{display:none!important}
+.footer-deco{
+  position:relative;text-align:center;overflow:hidden;
+  margin-top:27px;padding:23px 10px 8px;
+  border-top:1px solid #4c3218;color:#a8a29a;
+}
+.footer-cards{font-size:33px;letter-spacing:9px;color:var(--orange);opacity:.75}
+.footer-name{font-size:10px;letter-spacing:3px;margin-top:12px}
+.arrow{color:var(--yellow);padding:0 7px}
+@media(min-width:500px){
+  .app{padding-top:22px}
+  .hero{padding:35px 20px}
+  .card{padding:20px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="hero">
+  <span class="suit s1">♠</span>
+  <span class="suit s2">♦</span>
+  <span class="suit s3">♣</span>
+  <span class="suit s4">♥</span>
+  <div class="crown">♛</div>
+  <div class="logo">
+    HARUMAN <span class="number">4-1</span>
+    <span class="cardword">CARD!</span>
+  </div>
+  <div class="tagline">Catat kewajiban, hitung penyelesaian.</div>
+</header>
+
+<main id="inputPage">
+  <h1>Catat transaksi</h1>
+  <p class="section-intro">Catat siapa harus membayar kepada siapa.</p>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-icon">♟</div>
+      <h2>Daftar pemain</h2>
+      <span id="count" class="muted"></span>
+    </div>
+    <div id="players" class="players"></div>
+    <form id="addForm" class="add-row">
+      <input id="newName" placeholder="Nama pemain baru" maxlength="35" required>
+      <button type="submit">Tambah</button>
+    </form>
+    <div class="note">
+      <span class="info">ⓘ</span>
+      <span class="muted">Menghapus pemain hanya menghilangkannya dari daftar input. Riwayat transaksi yang sudah tercatat tetap tersimpan.</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-icon">🂡</div>
+      <h2>Transaksi baru</h2>
+    </div>
+    <form id="txForm">
+      <label for="payer">Yang harus membayar</label>
+      <select id="payer" required><option value="">Pilih pemain</option></select>
+
+      <label for="receiver">Yang menerima pembayaran</label>
+      <select id="receiver" required><option value="">Pilih pemain</option></select>
+
+      <label for="amount">Nominal (Rupiah)</label>
+      <input id="amount" type="number" inputmode="numeric" min="1" step="1" placeholder="Contoh: 20000" required>
+
+      <button class="primary full" style="margin-top:17px" type="submit">✓ &nbsp; Konfirmasi transaksi</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-icon">◷</div>
+      <h2>Riwayat transaksi</h2>
+      <span id="txCount" class="muted"></span>
+    </div>
+    <div id="history"></div>
+  </section>
+
+  <div class="actions">
+    <button class="primary full" id="finish" type="button">⚑ &nbsp; Selesaikan Permainan</button>
+  </div>
+</main>
+
+<main id="resultPage" class="hidden">
+  <h1>♛ Hasil akhir</h1>
+  <p class="section-intro">Pembayaran yang perlu dilakukan untuk menyelesaikan permainan.</p>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-icon">♜</div>
+      <h2>Penyelesaian utang</h2>
+    </div>
+    <div id="settlements"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-icon">▥</div>
+      <h2>Saldo bersih pemain</h2>
+    </div>
+    <div id="balances"></div>
+    <div class="note">
+      <span class="info">ⓘ</span>
+      <span class="muted">Saldo positif berarti berhak menerima uang. Saldo negatif berarti harus membayar.</span>
+    </div>
+  </section>
+
+  <button class="secondary full" id="newGame" type="button">⟳ &nbsp; Mulai Permainan Baru</button>
+</main>
+
+<footer class="footer-deco">
+  <div class="footer-cards">♠ ♦ ♥ ♣</div>
+  <div class="footer-name">HARUMAN 4-1 CARD!</div>
+</footer>
+</div>
+
+<script>
+const KEY="haruman_4_1_card_data_v1";
+let state={players:[],transactions:[]};
+
+try{
+  const saved=localStorage.getItem(KEY);
+  if(saved){
+    const data=JSON.parse(saved);
+    if(Array.isArray(data.players))state.players=data.players;
+    if(Array.isArray(data.transactions))state.transactions=data.transactions;
+  }
+}catch(e){}
+
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}
+  catch(e){alert("Browser tidak bisa menyimpan data lokal. Pastikan penyimpanan browser tersedia.");}
+}
+function money(n){
+  return "Rp "+Math.round(n).toLocaleString("id-ID");
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function renderPlayers(){
+  document.getElementById("count").textContent=state.players.length+" pemain";
+  document.getElementById("players").innerHTML=state.players.length
+    ?state.players.map((n,i)=>`
+      <div class="chip">${esc(n)}
+        <button type="button" data-remove="${i}" aria-label="Hapus ${esc(n)}">×</button>
+      </div>`).join("")
+    :'<div class="muted">Belum ada pemain.</div>';
+
+  ["payer","receiver"].forEach(id=>{
+    const el=document.getElementById(id),old=el.value;
+    el.innerHTML='<option value="">Pilih pemain</option>'+
+      state.players.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    if(state.players.includes(old))el.value=old;
+  });
+}
+function renderHistory(){
+  document.getElementById("txCount").textContent=state.transactions.length+" transaksi";
+  document.getElementById("history").innerHTML=state.transactions.length
+    ?[...state.transactions].reverse().map((t,i)=>`
+      <div class="history-item">
+        <div><strong>${esc(t.payer)}</strong><span class="arrow">→</span><strong>${esc(t.receiver)}</strong>
+          <small>Transaksi #${state.transactions.length-i} · ${new Date(t.time).toLocaleString("id-ID")}</small>
+        </div>
+        <span class="money">${money(t.amount)}</span>
+      </div>`).join("")
+    :'<div class="empty"><div class="empty-suit">🂠</div><strong>Belum ada transaksi.</strong><p class="muted">Setiap transaksi yang dikonfirmasi akan muncul di sini.</p></div>';
+}
+
+document.getElementById("addForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const input=document.getElementById("newName");
+  const name=input.value.trim();
+  if(!name)return;
+  if(state.players.some(n=>n.toLowerCase()===name.toLowerCase())){
+    alert("Nama pemain sudah terdaftar.");return;
+  }
+  state.players.push(name);
+  input.value="";
+  save();renderPlayers();
+});
+
+document.getElementById("players").addEventListener("click",e=>{
+  const b=e.target.closest("[data-remove]");
+  if(!b)return;
+  const i=Number(b.dataset.remove),name=state.players[i];
+  if(name!==undefined&&confirm("Hapus "+name+" dari daftar input? Riwayatnya tetap disimpan.")){
+    state.players.splice(i,1);
+    save();renderPlayers();
+  }
+});
+
+document.getElementById("txForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const payer=document.getElementById("payer").value;
+  const receiver=document.getElementById("receiver").value;
+  const amount=Number(document.getElementById("amount").value);
+
+  if(!payer||!receiver){alert("Pilih pemain terlebih dahulu.");return;}
+  if(payer===receiver){alert("Pilih dua pemain yang berbeda.");return;}
+  if(!Number.isSafeInteger(amount)||amount<=0){
+    alert("Nominal tidak valid.");return;
+  }
+
+  state.transactions.push({payer,receiver,amount,time:Date.now()});
+  save();renderHistory();e.target.reset();
+});
+
+function calculate(){
+  const map=new Map();
+  state.players.forEach(n=>map.set(n,0));
+
+  state.transactions.forEach(t=>{
+    map.set(t.payer,(map.get(t.payer)||0)-t.amount);
+    map.set(t.receiver,(map.get(t.receiver)||0)+t.amount);
+  });
+
+  const debtors=[],creditors=[];
+  map.forEach((v,n)=>{
+    if(v<0)debtors.push({name:n,amount:-v});
+    if(v>0)creditors.push({name:n,amount:v});
+  });
+
+  debtors.sort((a,b)=>b.amount-a.amount);
+  creditors.sort((a,b)=>b.amount-a.amount);
+
+  const transfers=[];
+  let i=0,j=0;
+  while(i<debtors.length&&j<creditors.length){
+    const amount=Math.min(debtors[i].amount,creditors[j].amount);
+    if(amount>0)transfers.push({
+      payer:debtors[i].name,receiver:creditors[j].name,amount
+    });
+    debtors[i].amount-=amount;
+    creditors[j].amount-=amount;
+    if(debtors[i].amount===0)i++;
+    if(creditors[j].amount===0)j++;
+  }
+  return {map,transfers};
+}
+
+function showResults(){
+  if(!state.transactions.length){
+    alert("Belum ada transaksi untuk diselesaikan.");return;
+  }
+
+  // Hitung hasil terlebih dahulu sebelum menghapus riwayat.
+  const result=calculate();
+  const balances=[...result.map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"id"));
+
+  document.getElementById("settlements").innerHTML=result.transfers.length
+    ?result.transfers.map(t=>`
+      <div class="settlement-item">
+        <div><strong>${esc(t.payer)}</strong><span class="arrow">→</span><strong>${esc(t.receiver)}</strong></div>
+        <span class="money" style="color:var(--yellow)">${money(t.amount)}</span>
+      </div>`).join("")
+    :'<div class="empty">✓ Semua saldo sudah seimbang.</div>';
+
+  document.getElementById("balances").innerHTML=balances.map(([n,v])=>`
+    <div class="balance-item">
+      <span>${esc(n)}</span>
+      <span class="money ${v>0?"positive":v<0?"negative":""}">
+        ${v>0?"+":v<0?"−":""}${money(Math.abs(v))}
+      </span>
+    </div>`).join("");
+
+  // Reset transaksi untuk permainan berikutnya; pemain tetap tersimpan.
+  state.transactions=[];
+  save();
+  renderHistory();
+
+  document.getElementById("inputPage").classList.add("hidden");
+  document.getElementById("resultPage").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+
+document.getElementById("finish").addEventListener("click",showResults);
+
+document.getElementById("newGame").addEventListener("click",()=>{
+  document.getElementById("resultPage").classList.add("hidden");
+  document.getElementById("inputPage").classList.remove("hidden");
+  renderPlayers();
+  renderHistory();
+  window.scrollTo(0,0);
+});
+
+renderPlayers();
+renderHistory();
+</script>
+</body>
+</html>
