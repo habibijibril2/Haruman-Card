@@ -1,436 +1,521 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#080909">
-<link rel="manifest" href="./manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="HARUMAN">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101010">
 <title>HARUMAN 4-1 CARD!</title>
-
 <style>
-:root{
-  --bg:#080909;
-  --panel:#101314;
-  --panel2:#151819;
-  --line:#343b3e;
-  --orange:#ff9418;
-  --yellow:#ffc52e;
-  --text:#f7f5f0;
-  --muted:#a7b0b4;
-  --red:#ff5151;
-  --green:#55dc83;
-}
+:root{--bg:#101010;--panel:#1c1c1c;--panel2:#282828;--gold:#e6b84a;--orange:#ef7928;--text:#f5f1e8;--muted:#aaa}
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-}
-button,input,select{font:inherit}
-button{cursor:pointer;transition:.15s}
-button:active{transform:scale(.98)}
-.app{max-width:560px;margin:auto;padding:14px 14px 40px;overflow:hidden}
-.hero{
-  position:relative;overflow:hidden;text-align:center;
-  padding:30px 15px 25px;margin-bottom:22px;
-  border:1px solid #4d3418;border-radius:20px;
-  background:
-    radial-gradient(ellipse at 50% 100%,#63350955,transparent 60%),
-    linear-gradient(145deg,#191919,#050505 70%);
-}
-.hero:before,.hero:after{
-  content:"";position:absolute;width:105px;height:150px;
-  border:1px solid #ff9d2d55;border-radius:10px;
-  transform:rotate(-25deg);pointer-events:none;
-}
-.hero:before{left:-45px;top:12px}
-.hero:after{right:-45px;bottom:-60px;transform:rotate(25deg)}
-.crown{font-size:31px;color:var(--yellow);margin-bottom:7px}
-.logo{
-  font-size:clamp(27px,7vw,43px);font-weight:1000;
-  letter-spacing:-1.7px;line-height:1.05;
-  text-shadow:0 3px 20px #ff961833;
-}
-.logo .number{color:var(--orange)}
-.logo .cardword{display:block;color:var(--yellow);font-style:italic}
-.tagline{color:#d1d4d4;font-size:13px;margin-top:14px}
-.suit{position:absolute;font-size:40px;opacity:.25;color:var(--orange)}
-.suit.s1{left:15px;top:20px;transform:rotate(-20deg)}
-.suit.s2{right:15px;top:20px;transform:rotate(20deg)}
-.suit.s3{left:22px;bottom:8px}
-.suit.s4{right:22px;bottom:8px}
-
-h1{font-size:25px;margin:0 0 7px}
-h2{font-size:17px;margin:0}
-p{line-height:1.5}
-.muted{color:var(--muted);font-size:13px;line-height:1.5}
-.section-intro{margin:0 0 18px;color:#bfc5c7}
-.card{
-  position:relative;background:linear-gradient(145deg,#111516,#0b0d0e);
-  border:1px solid var(--line);border-radius:17px;
-  padding:17px;margin:14px 0;
-  box-shadow:0 7px 22px #0003;
-}
-.card-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.card-icon{
-  width:35px;height:35px;border-radius:10px;
-  display:grid;place-items:center;flex-shrink:0;
-  background:#ff9b1819;color:var(--yellow);font-size:21px;
-}
-.card-head .muted{margin-left:auto;text-align:right;color:var(--yellow)}
-label{display:block;font-weight:600;font-size:13px;margin:15px 0 8px}
-input,select{
-  width:100%;min-width:0;background:#15191b;color:var(--text);
-  border:1px solid #465054;border-radius:11px;
-  padding:13px 14px;outline:none;
-}
-input::placeholder{color:#8d999e}
-input:focus,select:focus{border-color:var(--orange);box-shadow:0 0 0 2px #ff941822}
-option{background:#15191b;color:white}
-button{border:0;border-radius:11px;padding:13px 15px;font-weight:750}
-.primary{
-  color:#15100a;background:linear-gradient(110deg,#ffab20,#ff8a13);
-  box-shadow:0 4px 14px #ff941822;
-}
-.primary:hover{filter:brightness(1.08)}
-.secondary{color:var(--yellow);background:#19160f;border:1px solid #72501c}
-.outline{color:var(--text);background:#121516;border:1px solid #42494c}
-.full{width:100%}
-.add-row{display:flex;gap:9px;margin-top:12px}
-.add-row input{flex:1}
-.add-row button{background:var(--orange);color:#171009}
-.players{display:flex;flex-wrap:wrap;gap:8px}
-.chip{
-  display:flex;align-items:center;gap:9px;
-  padding:8px 10px 8px 13px;border:1px solid #424a4d;
-  border-radius:25px;background:#141718;font-size:13px;
-}
-.chip button{background:transparent;color:#b9c0c2;padding:0 2px;font-size:18px}
-.note{display:flex;gap:9px;align-items:flex-start;margin-top:14px}
-.note .info{color:#89969a;font-size:17px}
-.history-item,.balance-item,.settlement-item{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px 0;border-top:1px solid #282e30;
-}
-.history-item:first-child,.balance-item:first-child,.settlement-item:first-child{border-top:0}
-.history-item small{display:block;color:var(--muted);font-size:11px;margin-top:5px}
-.money{white-space:nowrap;font-weight:750}
-.positive{color:var(--green)}
-.negative{color:var(--red)}
-.empty{
-  padding:20px 10px;text-align:center;color:var(--muted);
-  border:1px solid #333b3e;border-radius:12px;background:#0c0e0f;
-}
-.empty .empty-suit{font-size:28px;color:#747e82;margin-bottom:8px}
-.actions{display:grid;gap:10px;margin-top:19px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:25px 15px;text-align:center;background:linear-gradient(135deg,#111,#302216);border-bottom:1px solid #5b431d}
+header h1{margin:0;color:var(--gold);font-size:25px;letter-spacing:1px}
+header p{font-size:11px;color:var(--muted);margin:8px 0 0}
+main{max-width:850px;margin:auto;padding:15px}
+section{background:var(--panel);border:1px solid #333;border-radius:13px;padding:16px;margin-bottom:15px}
+h2{font-size:17px;color:var(--gold);margin:0 0 13px}
+h3{font-size:14px;color:#f3c66a}
+input,select{display:block;width:100%;padding:12px;background:#111;color:white;border:1px solid #444;border-radius:8px;margin:6px 0 10px;font-size:14px}
+button{padding:10px 13px;border:0;border-radius:8px;background:var(--orange);color:white;font-weight:bold;margin:3px 3px 3px 0;cursor:pointer}
+button.secondary{background:#4a4a4a}
+button.gold{background:#987329}
+button.danger{background:#a83225}
+button:disabled{opacity:.4}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+.item{background:var(--panel2);padding:11px;border-radius:9px;margin:7px 0;font-size:13px;overflow-wrap:anywhere}
+.item small,.muted{color:var(--muted)}
+.muted{font-size:12px}
+.money{color:var(--gold);font-weight:bold}
+.pill{display:inline-block;background:#3b2e16;color:#f3c66a;padding:5px 9px;border-radius:20px;font-size:11px}
 .hidden{display:none!important}
-.footer-deco{
-  position:relative;text-align:center;overflow:hidden;
-  margin-top:27px;padding:23px 10px 8px;
-  border-top:1px solid #4c3218;color:#a8a29a;
-}
-.footer-cards{font-size:33px;letter-spacing:9px;color:var(--orange);opacity:.75}
-.footer-name{font-size:10px;letter-spacing:3px;margin-top:12px}
-.arrow{color:var(--yellow);padding:0 7px}
-@media(min-width:500px){
-  .app{padding-top:22px}
-  .hero{padding:35px 20px}
-  .card{padding:20px}
-}
+hr{border:0;border-top:1px solid #393939;margin:14px 0}
+.rank{display:flex;justify-content:space-between;gap:10px;align-items:center}
+footer{text-align:center;color:#777;font-size:11px;padding:20px}
 </style>
 </head>
-
 <body>
-<div class="app">
-
-<header class="hero">
-  <span class="suit s1">♠</span>
-  <span class="suit s2">♦</span>
-  <span class="suit s3">♣</span>
-  <span class="suit s4">♥</span>
-  <div class="crown">♛</div>
-  <div class="logo">
-    HARUMAN <span class="number">4-1</span>
-    <span class="cardword">CARD!</span>
-  </div>
-  <div class="tagline">Catat kewajiban, hitung penyelesaian.</div>
+<header>
+<h1>HARUMAN 4-1 CARD!</h1>
+<p>SHARED DEBT TRACKER · LIVE DATABASE</p>
 </header>
 
-<main id="inputPage">
-  <h1>Catat transaksi</h1>
-  <p class="section-intro">Catat siapa harus membayar kepada siapa.</p>
-
-  <section class="card">
-    <div class="card-head">
-      <div class="card-icon">♟</div>
-      <h2>Daftar pemain</h2>
-      <span id="count" class="muted"></span>
-    </div>
-    <div id="players" class="players"></div>
-    <form id="addForm" class="add-row">
-      <input id="newName" placeholder="Nama pemain baru" maxlength="35" required>
-      <button type="submit">Tambah</button>
-    </form>
-    <div class="note">
-      <span class="info">ⓘ</span>
-      <span class="muted">Menghapus pemain hanya menghilangkannya dari daftar input. Riwayat transaksi yang sudah tercatat tetap tersimpan.</span>
-    </div>
-  </section>
-
-  <section class="card">
-    <div class="card-head">
-      <div class="card-icon">🂡</div>
-      <h2>Transaksi baru</h2>
-    </div>
-    <form id="txForm">
-      <label for="payer">Yang harus membayar</label>
-      <select id="payer" required><option value="">Pilih pemain</option></select>
-
-      <label for="receiver">Yang menerima pembayaran</label>
-      <select id="receiver" required><option value="">Pilih pemain</option></select>
-
-      <label for="amount">Nominal (Rupiah)</label>
-      <input id="amount" type="number" inputmode="numeric" min="1" step="1" placeholder="Contoh: 20000" required>
-
-      <button class="primary full" style="margin-top:17px" type="submit">✓ &nbsp; Konfirmasi transaksi</button>
-    </form>
-  </section>
-
-  <section class="card">
-    <div class="card-head">
-      <div class="card-icon">◷</div>
-      <h2>Riwayat transaksi</h2>
-      <span id="txCount" class="muted"></span>
-    </div>
-    <div id="history"></div>
-  </section>
-
-  <div class="actions">
-    <button class="primary full" id="finish" type="button">⚑ &nbsp; Selesaikan Permainan</button>
-  </div>
-</main>
-
-<main id="resultPage" class="hidden">
-  <h1>♛ Hasil akhir</h1>
-  <p class="section-intro">Pembayaran yang perlu dilakukan untuk menyelesaikan permainan.</p>
-
-  <section class="card">
-    <div class="card-head">
-      <div class="card-icon">♜</div>
-      <h2>Penyelesaian utang</h2>
-    </div>
-    <div id="settlements"></div>
-  </section>
-
-  <section class="card">
-    <div class="card-head">
-      <div class="card-icon">▥</div>
-      <h2>Saldo bersih pemain</h2>
-    </div>
-    <div id="balances"></div>
-    <div class="note">
-      <span class="info">ⓘ</span>
-      <span class="muted">Saldo positif berarti berhak menerima uang. Saldo negatif berarti harus membayar.</span>
-    </div>
-  </section>
-
-  <button class="secondary full" id="newGame" type="button">⟳ &nbsp; Mulai Permainan Baru</button>
-</main>
-
-<footer class="footer-deco">
-  <div class="footer-cards">♠ ♦ ♥ ♣</div>
-  <div class="footer-name">HARUMAN 4-1 CARD!</div>
-</footer>
+<main>
+<section>
+<div class="row">
+<div><h2>Status Aplikasi</h2><div id="connection" class="muted">Menghubungkan...</div></div>
+<div style="text-align:right"><span id="adminBadge" class="pill">MODE PUBLIK</span></div>
 </div>
+</section>
 
-<script>
-const KEY="haruman_4_1_card_data_v1";
-let state={players:[],transactions:[]};
+<section>
+<h2>Login Admin</h2>
+<div id="loginArea">
+<input id="adminPassword" type="password" placeholder="Password admin">
+<button onclick="adminLogin()">Login Admin</button>
+</div>
+<div id="adminArea" class="hidden">
+<p class="muted">Admin aktif. Sesi otomatis terkunci setelah 15 menit.</p>
+<button class="danger" onclick="adminLogout()">Logout Admin</button>
+</div>
+</section>
 
-try{
-  const saved=localStorage.getItem(KEY);
-  if(saved){
-    const data=JSON.parse(saved);
-    if(Array.isArray(data.players))state.players=data.players;
-    if(Array.isArray(data.transactions))state.transactions=data.transactions;
+<section>
+<h2>Daftar Pemain</h2>
+<div class="row">
+<input id="playerName" placeholder="Nama pemain">
+<button onclick="addPlayer()">Tambah Pemain</button>
+</div>
+<div id="playersList"></div>
+</section>
+
+<section>
+<h2>Transaksi Match Berjalan</h2>
+<p class="muted">Catat siapa yang berutang kepada siapa.</p>
+<label class="muted">Pemain yang berutang</label>
+<select id="draftFrom"></select>
+<label class="muted">Pemain penerima</label>
+<select id="draftTo"></select>
+<label class="muted">Nominal (Rp)</label>
+<input id="draftAmount" type="number" min="1" placeholder="Contoh: 50000">
+<input id="draftNote" placeholder="Keterangan (opsional)">
+<button onclick="addDraft()">Tambah Transaksi</button>
+<div id="draftList"></div>
+<hr>
+<button class="gold" onclick="finishMatch()">Selesaikan Match & Simpan</button>
+</section>
+
+<section>
+<h2>Input Utang Manual</h2>
+<p class="muted">Untuk mencatat utang dari permainan sebelumnya. Admin only.</p>
+<div id="manualForm" class="hidden">
+<select id="manualFrom"></select>
+<select id="manualTo"></select>
+<input id="manualAmount" type="number" min="1" placeholder="Nominal utang">
+<input id="manualNote" placeholder="Keterangan / tanggal permainan">
+<button onclick="addManualDebt()">Simpan Utang Manual</button>
+</div>
+<div id="manualList"></div>
+</section>
+
+<section>
+<h2>Pembayaran Utang</h2>
+<p class="muted">Pembayaran sebagian maupun lunas. Admin only.</p>
+<div id="paymentForm" class="hidden">
+<select id="paymentFrom"></select>
+<select id="paymentTo"></select>
+<input id="paymentAmount" type="number" min="1" placeholder="Nominal pembayaran">
+<input id="paymentNote" placeholder="Catatan pembayaran">
+<button onclick="addPayment()">Simpan Pembayaran</button>
+</div>
+<div id="paymentList"></div>
+</section>
+
+<section>
+<h2>Ringkasan Utang Bersih</h2>
+<div id="balances"></div>
+</section>
+
+<section>
+<h2>Seluruh Peringkat Piutang</h2>
+<p class="muted">Semua pemain, diurutkan dari piutang terbesar.</p>
+<div id="allCreditors"></div>
+<hr>
+<h2>Seluruh Peringkat Utang</h2>
+<p class="muted">Semua pemain, diurutkan dari utang terbesar.</p>
+<div id="allDebtors"></div>
+</section>
+
+<section>
+<h2>Riwayat Match</h2>
+<div id="matchesList"></div>
+</section>
+</main>
+
+<footer>HARUMAN 4-1 CARD! · FIREBASE LIVE DATABASE</footer>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import {
+ getFirestore,collection,addDoc,deleteDoc,doc,updateDoc,
+ onSnapshot,writeBatch,serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import {
+ getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyC0YNNohQp6VWPVLmRT81I-fJ1oDTo4wkg",
+ authDomain:"haruman-4-1-card.firebaseapp.com",
+ projectId:"haruman-4-1-card",
+ storageBucket:"haruman-4-1-card.firebasestorage.app",
+ messagingSenderId:"810213398831",
+ appId:"1:810213398831:web:db725427b42d6723b769da",
+ measurementId:"G-QLXH0RMR8Y"
+};
+
+const ADMIN_EMAIL="habibijibr2@gmail.com";
+const ADMIN_UID="xXzaumk2RoPCD5oIVe1HtwYdR4b2";
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
+
+let isAdmin=false;
+let players=[],drafts=[],matches=[],manualDebts=[],payments=[];
+let lockTimer=null;
+
+const rupiah=n=>"Rp"+Number(n||0).toLocaleString("id-ID");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const activePlayers=()=>players.filter(p=>p.active!==false);
+const playerName=id=>players.find(p=>p.id===id)?.name||"Pemain tidak ditemukan";
+const dateText=t=>t?.toDate?t.toDate().toLocaleString("id-ID"):"Waktu tidak tersedia";
+const error=e=>{console.error(e);alert("Terjadi kesalahan: "+(e.message||e));};
+const adminOnly=()=>{if(!isAdmin){alert("Fitur ini khusus admin.");return false;}return true;};
+
+function setStatus(s){document.getElementById("connection").textContent=s;}
+
+function fillSelect(id){
+ const el=document.getElementById(id),old=el.value;
+ el.innerHTML='<option value="">Pilih pemain</option>'+activePlayers().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
+ if(activePlayers().some(p=>p.id===old))el.value=old;
+}
+function refreshSelects(){
+ ["draftFrom","draftTo","manualFrom","manualTo","paymentFrom","paymentTo"].forEach(fillSelect);
+}
+
+function setAdminUI(){
+ document.getElementById("loginArea").classList.toggle("hidden",isAdmin);
+ document.getElementById("adminArea").classList.toggle("hidden",!isAdmin);
+ document.getElementById("adminBadge").textContent=isAdmin?"ADMIN AKTIF":"MODE PUBLIK";
+ document.getElementById("manualForm").classList.toggle("hidden",!isAdmin);
+ document.getElementById("paymentForm").classList.toggle("hidden",!isAdmin);
+ render();
+}
+
+function resetLock(){
+ clearTimeout(lockTimer);
+ if(isAdmin)lockTimer=setTimeout(()=>adminLogout(true),15*60*1000);
+}
+
+window.adminLogin=async()=>{
+ const password=document.getElementById("adminPassword").value;
+ if(!password)return alert("Masukkan password admin.");
+ try{
+  const cred=await signInWithEmailAndPassword(auth,ADMIN_EMAIL,password);
+  if(cred.user.uid!==ADMIN_UID){
+   await signOut(auth);
+   throw new Error("Akun bukan admin.");
   }
-}catch(e){}
+  document.getElementById("adminPassword").value="";
+  resetLock();
+ }catch(e){error(e);}
+};
 
-function save(){
-  try{localStorage.setItem(KEY,JSON.stringify(state));}
-  catch(e){alert("Browser tidak bisa menyimpan data lokal. Pastikan penyimpanan browser tersedia.");}
-}
-function money(n){
-  return "Rp "+Math.round(n).toLocaleString("id-ID");
-}
-function esc(s){
-  return String(s).replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-function renderPlayers(){
-  document.getElementById("count").textContent=state.players.length+" pemain";
-  document.getElementById("players").innerHTML=state.players.length
-    ?state.players.map((n,i)=>`
-      <div class="chip">${esc(n)}
-        <button type="button" data-remove="${i}" aria-label="Hapus ${esc(n)}">×</button>
-      </div>`).join("")
-    :'<div class="muted">Belum ada pemain.</div>';
+window.adminLogout=async(auto=false)=>{
+ clearTimeout(lockTimer);
+ try{await signOut(auth);}catch(e){error(e);}
+ if(auto)alert("Sesi admin berakhir. Silakan login kembali.");
+};
 
-  ["payer","receiver"].forEach(id=>{
-    const el=document.getElementById(id),old=el.value;
-    el.innerHTML='<option value="">Pilih pemain</option>'+
-      state.players.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");
-    if(state.players.includes(old))el.value=old;
+onAuthStateChanged(auth,user=>{
+ isAdmin=!!user&&user.uid===ADMIN_UID;
+ if(isAdmin)resetLock();else clearTimeout(lockTimer);
+ setAdminUI();
+});
+
+/* PEMAIN */
+window.addPlayer=async()=>{
+ const name=document.getElementById("playerName").value.trim();
+ if(!name)return alert("Masukkan nama pemain.");
+ try{
+  await addDoc(collection(db,"players"),{name,active:true,createdAt:serverTimestamp()});
+  document.getElementById("playerName").value="";
+ }catch(e){error(e);}
+};
+
+window.togglePlayer=async(id,active)=>{
+ try{await updateDoc(doc(db,"players",id),{active});}
+ catch(e){error(e);}
+};
+
+/* TRANSAKSI MATCH BERJALAN */
+window.addDraft=async()=>{
+ const from=document.getElementById("draftFrom").value;
+ const to=document.getElementById("draftTo").value;
+ const amount=Number(document.getElementById("draftAmount").value);
+ const note=document.getElementById("draftNote").value.trim();
+ if(!from||!to||from===to||amount<=0)return alert("Periksa pemain dan nominal.");
+ try{
+  await addDoc(collection(db,"draftTransactions"),{from,to,amount,note,createdAt:serverTimestamp()});
+  document.getElementById("draftAmount").value="";
+  document.getElementById("draftNote").value="";
+ }catch(e){error(e);}
+};
+
+window.editDraft=async(id,oldAmount,oldNote)=>{
+ if(!adminOnly())return;
+ const amount=Number(prompt("Nominal baru:",oldAmount));
+ if(!amount||amount<=0)return;
+ const note=prompt("Keterangan:",oldNote||"");
+ if(note===null)return;
+ try{await updateDoc(doc(db,"draftTransactions",id),{amount,note});}
+ catch(e){error(e);}
+};
+
+window.deleteDraft=async id=>{
+ if(!adminOnly()||!confirm("Hapus transaksi ini?"))return;
+ try{await deleteDoc(doc(db,"draftTransactions",id));}catch(e){error(e);}
+};
+
+window.finishMatch=async()=>{
+ if(!drafts.length)return alert("Belum ada transaksi.");
+ if(!confirm("Simpan match ini ke riwayat?"))return;
+ try{
+  const batch=writeBatch(db);
+  const matchRef=doc(collection(db,"matches"));
+  batch.set(matchRef,{
+   entries:drafts.map(d=>({from:d.from,to:d.to,amount:d.amount,note:d.note||""})),
+   createdAt:serverTimestamp()
   });
+  drafts.forEach(d=>batch.delete(doc(db,"draftTransactions",d.id)));
+  await batch.commit();
+  alert("Match berhasil disimpan.");
+ }catch(e){error(e);}
+};
+
+/* UTANG MANUAL */
+window.addManualDebt=async()=>{
+ if(!adminOnly())return;
+ const from=document.getElementById("manualFrom").value;
+ const to=document.getElementById("manualTo").value;
+ const amount=Number(document.getElementById("manualAmount").value);
+ const note=document.getElementById("manualNote").value.trim();
+ if(!from||!to||from===to||amount<=0)return alert("Periksa data utang.");
+ try{
+  await addDoc(collection(db,"manualDebts"),{from,to,amount,note,createdAt:serverTimestamp()});
+  document.getElementById("manualAmount").value="";
+  document.getElementById("manualNote").value="";
+ }catch(e){error(e);}
+};
+
+window.editManual=async(id,oldAmount,oldNote)=>{
+ if(!adminOnly())return;
+ const amount=Number(prompt("Nominal baru:",oldAmount));
+ if(!amount||amount<=0)return;
+ const note=prompt("Keterangan:",oldNote||"");
+ if(note===null)return;
+ try{await updateDoc(doc(db,"manualDebts",id),{amount,note});}
+ catch(e){error(e);}
+};
+
+window.deleteManual=async id=>{
+ if(!adminOnly()||!confirm("Hapus utang manual ini?"))return;
+ try{await deleteDoc(doc(db,"manualDebts",id));}catch(e){error(e);}
+};
+
+/* PEMBAYARAN */
+window.addPayment=async()=>{
+ if(!adminOnly())return;
+ const from=document.getElementById("paymentFrom").value;
+ const to=document.getElementById("paymentTo").value;
+ const amount=Number(document.getElementById("paymentAmount").value);
+ const note=document.getElementById("paymentNote").value.trim();
+ if(!from||!to||from===to||amount<=0)return alert("Periksa data pembayaran.");
+ try{
+  await addDoc(collection(db,"payments"),{from,to,amount,note,createdAt:serverTimestamp()});
+  document.getElementById("paymentAmount").value="";
+  document.getElementById("paymentNote").value="";
+ }catch(e){error(e);}
+};
+
+window.editPayment=async(id,oldAmount,oldNote)=>{
+ if(!adminOnly())return;
+ const amount=Number(prompt("Nominal pembayaran baru:",oldAmount));
+ if(!amount||amount<=0)return;
+ const note=prompt("Catatan pembayaran:",oldNote||"");
+ if(note===null)return;
+ try{await updateDoc(doc(db,"payments",id),{amount,note});}
+ catch(e){error(e);}
+};
+
+window.deletePayment=async id=>{
+ if(!adminOnly()||!confirm("Hapus catatan pembayaran ini?"))return;
+ try{await deleteDoc(doc(db,"payments",id));}catch(e){error(e);}
+};
+
+/* EDIT DAN HAPUS TRANSAKSI DI RIWAYAT MATCH */
+window.editMatchEntry=async(matchId,index,entry)=>{
+ if(!adminOnly())return;
+ const amount=Number(prompt("Nominal transaksi baru:",entry.amount));
+ if(!amount||amount<=0)return;
+ const note=prompt("Keterangan:",entry.note||"");
+ if(note===null)return;
+ try{
+  const match=matches.find(m=>m.id===matchId);
+  const entries=[...match.entries];
+  entries[index]={...entries[index],amount,note};
+  await updateDoc(doc(db,"matches",matchId),{entries});
+ }catch(e){error(e);}
+};
+
+window.deleteMatchEntry=async(matchId,index)=>{
+ if(!adminOnly()||!confirm("Hapus transaksi dari match ini?"))return;
+ try{
+  const match=matches.find(m=>m.id===matchId);
+  const entries=match.entries.filter((_,i)=>i!==index);
+  if(entries.length===0){
+   if(confirm("Ini transaksi terakhir. Hapus seluruh match?")){
+    await deleteDoc(doc(db,"matches",matchId));
+   }
+  }else{
+   await updateDoc(doc(db,"matches",matchId),{entries});
+  }
+ }catch(e){error(e);}
+};
+
+window.deleteMatch=async id=>{
+ if(!adminOnly()||!confirm("Hapus seluruh riwayat match ini?"))return;
+ try{await deleteDoc(doc(db,"matches",id));}catch(e){error(e);}
+};
+
+/* HITUNG SALDO BERSIH ANTAR PEMAIN */
+function calculateBalances(){
+ const ids=players.map(p=>p.id);
+ const matrix={};
+ ids.forEach(a=>{
+  matrix[a]={};
+  ids.forEach(b=>matrix[a][b]=0);
+ });
+
+ function addDebt(from,to,amount){
+  if(matrix[from]&&matrix[from][to]!==undefined)matrix[from][to]+=Number(amount||0);
+ }
+
+ matches.forEach(m=>(m.entries||[]).forEach(e=>addDebt(e.from,e.to,e.amount)));
+ manualDebts.forEach(d=>addDebt(d.from,d.to,d.amount));
+
+ // Pembayaran mengurangi utang dari pemain pembayar ke penerima.
+ payments.forEach(p=>addDebt(p.to,p.from,-Number(p.amount||0)));
+
+ const balances=[];
+ for(let i=0;i<ids.length;i++){
+  for(let j=i+1;j<ids.length;j++){
+   const a=ids[i],b=ids[j];
+   const net=matrix[a][b]-matrix[b][a];
+   if(net>0)balances.push({from:a,to:b,amount:net});
+   else if(net<0)balances.push({from:b,to:a,amount:-net});
+  }
+ }
+ return balances;
 }
-function renderHistory(){
-  document.getElementById("txCount").textContent=state.transactions.length+" transaksi";
-  document.getElementById("history").innerHTML=state.transactions.length
-    ?[...state.transactions].reverse().map((t,i)=>`
-      <div class="history-item">
-        <div><strong>${esc(t.payer)}</strong><span class="arrow">→</span><strong>${esc(t.receiver)}</strong>
-          <small>Transaksi #${state.transactions.length-i} · ${new Date(t.time).toLocaleString("id-ID")}</small>
-        </div>
-        <span class="money">${money(t.amount)}</span>
-      </div>`).join("")
-    :'<div class="empty"><div class="empty-suit">🂠</div><strong>Belum ada transaksi.</strong><p class="muted">Setiap transaksi yang dikonfirmasi akan muncul di sini.</p></div>';
+
+function render(){
+ refreshSelects();
+
+ document.getElementById("playersList").innerHTML=players.length?
+ players.map(p=>`
+ <div class="item">
+ <div class="row">
+ <div><b>${esc(p.name)}</b> ${p.active===false?'<span class="pill">NONAKTIF</span>':''}</div>
+ <div style="text-align:right">${isAdmin?`<button class="secondary" onclick="togglePlayer('${p.id}',${p.active===false})">${p.active===false?"Aktifkan":"Nonaktifkan"}</button>`:""}</div>
+ </div>
+ </div>`).join(""):"<p class='muted'>Belum ada pemain.</p>";
+
+ document.getElementById("draftList").innerHTML=drafts.length?
+ drafts.map(d=>`
+ <div class="item">
+ <b>${esc(playerName(d.from))}</b> → <b>${esc(playerName(d.to))}</b>
+ <div class="money">${rupiah(d.amount)}</div>
+ <small>${esc(d.note||"Tanpa keterangan")}</small>
+ ${isAdmin?`<div><button class="secondary" onclick="editDraft('${d.id}',${d.amount},'${esc(d.note||"")}')">Edit</button><button class="danger" onclick="deleteDraft('${d.id}')">Hapus</button></div>`:""}
+ </div>`).join(""):"<p class='muted'>Belum ada transaksi berjalan.</p>";
+
+ document.getElementById("manualList").innerHTML=manualDebts.length?
+ manualDebts.map(d=>`
+ <div class="item">
+ <b>${esc(playerName(d.from))}</b> → <b>${esc(playerName(d.to))}</b>
+ <div class="money">${rupiah(d.amount)}</div>
+ <small>${esc(d.note||"Tanpa keterangan")} · ${dateText(d.createdAt)}</small>
+ ${isAdmin?`<div><button class="secondary" onclick="editManual('${d.id}',${d.amount},'${esc(d.note||"")}')">Edit</button><button class="danger" onclick="deleteManual('${d.id}')">Hapus</button></div>`:""}
+ </div>`).join(""):"<p class='muted'>Belum ada utang manual.</p>";
+
+ document.getElementById("paymentList").innerHTML=payments.length?
+ payments.map(p=>`
+ <div class="item">
+ <b>${esc(playerName(p.from))}</b> membayar <b>${esc(playerName(p.to))}</b>
+ <div class="money">${rupiah(p.amount)}</div>
+ <small>${esc(p.note||"Tanpa catatan")} · ${dateText(p.createdAt)}</small>
+ ${isAdmin?`<div><button class="secondary" onclick="editPayment('${p.id}',${p.amount},'${esc(p.note||"")}')">Edit</button><button class="danger" onclick="deletePayment('${p.id}')">Hapus</button></div>`:""}
+ </div>`).join(""):"<p class='muted'>Belum ada pembayaran.</p>";
+
+ const balances=calculateBalances();
+ document.getElementById("balances").innerHTML=balances.length?
+ balances.map(b=>`
+ <div class="item">
+ <b>${esc(playerName(b.from))}</b> berutang kepada <b>${esc(playerName(b.to))}</b>
+ <div class="money">${rupiah(b.amount)}</div>
+ </div>`).join(""):"<p class='muted'>Semua saldo utang sudah bersih.</p>";
+
+ // Akumulasi piutang dan utang bersih untuk seluruh pemain.
+ const credit=Object.fromEntries(players.map(p=>[p.id,0]));
+ const debt=Object.fromEntries(players.map(p=>[p.id,0]));
+ balances.forEach(b=>{
+  credit[b.to]+=b.amount;
+  debt[b.from]+=b.amount;
+ });
+
+ const sortedCredit=[...players].sort((a,b)=>credit[b.id]-credit[a.id]);
+ const sortedDebt=[...players].sort((a,b)=>debt[b.id]-debt[a.id]);
+
+ document.getElementById("allCreditors").innerHTML=sortedCredit.length?
+ sortedCredit.map((p,i)=>`
+ <div class="item rank">
+ <div><b>${i+1}. ${esc(p.name)}</b><br><small>${p.active===false?"Pemain nonaktif":"Pemain aktif"}</small></div>
+ <div class="money">${rupiah(credit[p.id])}</div>
+ </div>`).join(""):"<p class='muted'>Belum ada pemain.</p>";
+
+ document.getElementById("allDebtors").innerHTML=sortedDebt.length?
+ sortedDebt.map((p,i)=>`
+ <div class="item rank">
+ <div><b>${i+1}. ${esc(p.name)}</b><br><small>${p.active===false?"Pemain nonaktif":"Pemain aktif"}</small></div>
+ <div class="money">${rupiah(debt[p.id])}</div>
+ </div>`).join(""):"<p class='muted'>Belum ada pemain.</p>";
+
+ document.getElementById("matchesList").innerHTML=matches.length?
+ matches.map(m=>`
+ <div class="item">
+ <b>Match · ${dateText(m.createdAt)}</b>
+ ${(m.entries||[]).map((e,i)=>`
+ <div style="border-top:1px solid #444;margin-top:8px;padding-top:8px">
+ ${esc(playerName(e.from))} → ${esc(playerName(e.to))}
+ <div class="money">${rupiah(e.amount)}</div>
+ <small>${esc(e.note||"Tanpa keterangan")}</small>
+ ${isAdmin?`<div><button class="secondary" onclick='editMatchEntry("${m.id}",${i},${JSON.stringify(e).replace(/'/g,"&#39;")})'>Edit transaksi</button><button class="danger" onclick="deleteMatchEntry('${m.id}',${i})">Hapus transaksi</button></div>`:""}
+ </div>`).join("")}
+ ${isAdmin?`<button class="danger" onclick="deleteMatch('${m.id}')">Hapus seluruh match</button>`:""}
+ </div>`).join(""):"<p class='muted'>Belum ada riwayat match.</p>";
 }
 
-document.getElementById("addForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const input=document.getElementById("newName");
-  const name=input.value.trim();
-  if(!name)return;
-  if(state.players.some(n=>n.toLowerCase()===name.toLowerCase())){
-    alert("Nama pemain sudah terdaftar.");return;
-  }
-  state.players.push(name);
-  input.value="";
-  save();renderPlayers();
-});
-
-document.getElementById("players").addEventListener("click",e=>{
-  const b=e.target.closest("[data-remove]");
-  if(!b)return;
-  const i=Number(b.dataset.remove),name=state.players[i];
-  if(name!==undefined&&confirm("Hapus "+name+" dari daftar input? Riwayatnya tetap disimpan.")){
-    state.players.splice(i,1);
-    save();renderPlayers();
-  }
-});
-
-document.getElementById("txForm").addEventListener("submit",e=>{
-  e.preventDefault();
-  const payer=document.getElementById("payer").value;
-  const receiver=document.getElementById("receiver").value;
-  const amount=Number(document.getElementById("amount").value);
-
-  if(!payer||!receiver){alert("Pilih pemain terlebih dahulu.");return;}
-  if(payer===receiver){alert("Pilih dua pemain yang berbeda.");return;}
-  if(!Number.isSafeInteger(amount)||amount<=0){
-    alert("Nominal tidak valid.");return;
-  }
-
-  state.transactions.push({payer,receiver,amount,time:Date.now()});
-  save();renderHistory();e.target.reset();
-});
-
-function calculate(){
-  const map=new Map();
-  state.players.forEach(n=>map.set(n,0));
-
-  state.transactions.forEach(t=>{
-    map.set(t.payer,(map.get(t.payer)||0)-t.amount);
-    map.set(t.receiver,(map.get(t.receiver)||0)+t.amount);
-  });
-
-  const debtors=[],creditors=[];
-  map.forEach((v,n)=>{
-    if(v<0)debtors.push({name:n,amount:-v});
-    if(v>0)creditors.push({name:n,amount:v});
-  });
-
-  debtors.sort((a,b)=>b.amount-a.amount);
-  creditors.sort((a,b)=>b.amount-a.amount);
-
-  const transfers=[];
-  let i=0,j=0;
-  while(i<debtors.length&&j<creditors.length){
-    const amount=Math.min(debtors[i].amount,creditors[j].amount);
-    if(amount>0)transfers.push({
-      payer:debtors[i].name,receiver:creditors[j].name,amount
-    });
-    debtors[i].amount-=amount;
-    creditors[j].amount-=amount;
-    if(debtors[i].amount===0)i++;
-    if(creditors[j].amount===0)j++;
-  }
-  return {map,transfers};
+/* REAL-TIME FIRESTORE LISTENERS */
+function listen(name,callback){
+ onSnapshot(collection(db,name),snapshot=>{
+  callback(snapshot.docs.map(d=>({id:d.id,...d.data()})));
+  setStatus("Terhubung · Sinkronisasi real-time aktif");
+  render();
+ },e=>{
+  console.error(name,e);
+  setStatus("Gagal memuat "+name+": "+e.message);
+ });
 }
 
-function showResults(){
-  if(!state.transactions.length){
-    alert("Belum ada transaksi untuk diselesaikan.");return;
-  }
-
-  // Hitung hasil terlebih dahulu sebelum menghapus riwayat.
-  const result=calculate();
-  const balances=[...result.map.entries()].sort((a,b)=>a[0].localeCompare(b[0],"id"));
-
-  document.getElementById("settlements").innerHTML=result.transfers.length
-    ?result.transfers.map(t=>`
-      <div class="settlement-item">
-        <div><strong>${esc(t.payer)}</strong><span class="arrow">→</span><strong>${esc(t.receiver)}</strong></div>
-        <span class="money" style="color:var(--yellow)">${money(t.amount)}</span>
-      </div>`).join("")
-    :'<div class="empty">✓ Semua saldo sudah seimbang.</div>';
-
-  document.getElementById("balances").innerHTML=balances.map(([n,v])=>`
-    <div class="balance-item">
-      <span>${esc(n)}</span>
-      <span class="money ${v>0?"positive":v<0?"negative":""}">
-        ${v>0?"+":v<0?"−":""}${money(Math.abs(v))}
-      </span>
-    </div>`).join("");
-
-  // Reset transaksi untuk permainan berikutnya; pemain tetap tersimpan.
-  state.transactions=[];
-  save();
-  renderHistory();
-
-  document.getElementById("inputPage").classList.add("hidden");
-  document.getElementById("resultPage").classList.remove("hidden");
-  window.scrollTo(0,0);
-}
-
-document.getElementById("finish").addEventListener("click",showResults);
-
-document.getElementById("newGame").addEventListener("click",()=>{
-  document.getElementById("resultPage").classList.add("hidden");
-  document.getElementById("inputPage").classList.remove("hidden");
-  renderPlayers();
-  renderHistory();
-  window.scrollTo(0,0);
-});
-
-renderPlayers();
-renderHistory();
+listen("players",v=>players=v);
+listen("draftTransactions",v=>drafts=v);
+listen("matches",v=>matches=v);
+listen("manualDebts",v=>manualDebts=v);
+listen("payments",v=>payments=v);
+setAdminUI();
 </script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(error => console.error(
-        "Service worker gagal didaftarkan:", error
-      ));
-  });
-}
-</script>
-  
 </body>
 </html>
