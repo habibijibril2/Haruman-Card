@@ -15,7 +15,6 @@ header p{font-size:11px;color:var(--muted);margin:8px 0 0}
 main{max-width:850px;margin:auto;padding:15px}
 section{background:var(--panel);border:1px solid #333;border-radius:13px;padding:16px;margin-bottom:15px}
 h2{font-size:17px;color:var(--gold);margin:0 0 13px}
-h3{font-size:14px;color:#f3c66a}
 input,select{display:block;width:100%;padding:12px;background:#111;color:white;border:1px solid #444;border-radius:8px;margin:6px 0 10px;font-size:14px}
 button{padding:10px 13px;border:0;border-radius:8px;background:var(--orange);color:white;font-weight:bold;margin:3px 3px 3px 0;cursor:pointer}
 button.secondary{background:#4a4a4a}
@@ -23,7 +22,7 @@ button.gold{background:#987329}
 button.danger{background:#a83225}
 button:disabled{opacity:.4}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.row>*{flex:1}
+.row>*{flex:1;min-width:0}
 .item{background:var(--panel2);padding:11px;border-radius:9px;margin:7px 0;font-size:13px;overflow-wrap:anywhere}
 .item small,.muted{color:var(--muted)}
 .muted{font-size:12px}
@@ -33,6 +32,7 @@ button:disabled{opacity:.4}
 hr{border:0;border-top:1px solid #393939;margin:14px 0}
 .rank{display:flex;justify-content:space-between;gap:10px;align-items:center}
 footer{text-align:center;color:#777;font-size:11px;padding:20px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -52,20 +52,20 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px}
 <section>
 <h2>Login Admin</h2>
 <div id="loginArea">
-<input id="adminPassword" type="password" placeholder="Password admin">
-<button onclick="adminLogin()">Login Admin</button>
+<input id="adminPassword" type="password" placeholder="Password admin" autocomplete="current-password">
+<button id="loginButton">Login Admin</button>
 </div>
 <div id="adminArea" class="hidden">
 <p class="muted">Admin aktif. Sesi otomatis terkunci setelah 15 menit.</p>
-<button class="danger" onclick="adminLogout()">Logout Admin</button>
+<button class="danger" id="logoutButton">Logout Admin</button>
 </div>
 </section>
 
 <section>
 <h2>Daftar Pemain</h2>
 <div class="row">
-<input id="playerName" placeholder="Nama pemain">
-<button onclick="addPlayer()">Tambah Pemain</button>
+<input id="playerName" placeholder="Nama pemain" maxlength="60">
+<button id="addPlayerButton">Tambah Pemain</button>
 </div>
 <div id="playersList"></div>
 </section>
@@ -78,12 +78,13 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px}
 <label class="muted">Pemain penerima</label>
 <select id="draftTo"></select>
 <label class="muted">Nominal (Rp)</label>
-<input id="draftAmount" type="number" min="1" placeholder="Contoh: 50000">
-<input id="draftNote" placeholder="Keterangan (opsional)">
-<button onclick="addDraft()">Tambah Transaksi</button>
+<input id="draftAmount" type="number" min="1" step="1" placeholder="Contoh: 50000">
+<input id="draftNote" maxlength="200" placeholder="Keterangan (opsional)">
+<button id="addDraftButton">Tambah Transaksi</button>
 <div id="draftList"></div>
 <hr>
-<button class="gold" onclick="finishMatch()">Selesaikan Match & Simpan</button>
+<button class="gold" id="finishMatchButton">Selesaikan Match & Simpan</button>
+<p class="muted">Penyelesaian match hanya dapat dilakukan admin.</p>
 </section>
 
 <section>
@@ -92,9 +93,9 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px}
 <div id="manualForm" class="hidden">
 <select id="manualFrom"></select>
 <select id="manualTo"></select>
-<input id="manualAmount" type="number" min="1" placeholder="Nominal utang">
-<input id="manualNote" placeholder="Keterangan / tanggal permainan">
-<button onclick="addManualDebt()">Simpan Utang Manual</button>
+<input id="manualAmount" type="number" min="1" step="1" placeholder="Nominal utang">
+<input id="manualNote" maxlength="200" placeholder="Keterangan / tanggal permainan">
+<button id="addManualButton">Simpan Utang Manual</button>
 </div>
 <div id="manualList"></div>
 </section>
@@ -105,9 +106,9 @@ footer{text-align:center;color:#777;font-size:11px;padding:20px}
 <div id="paymentForm" class="hidden">
 <select id="paymentFrom"></select>
 <select id="paymentTo"></select>
-<input id="paymentAmount" type="number" min="1" placeholder="Nominal pembayaran">
-<input id="paymentNote" placeholder="Catatan pembayaran">
-<button onclick="addPayment()">Simpan Pembayaran</button>
+<input id="paymentAmount" type="number" min="1" step="1" placeholder="Nominal pembayaran">
+<input id="paymentNote" maxlength="200" placeholder="Catatan pembayaran">
+<button id="addPaymentButton">Simpan Pembayaran</button>
 </div>
 <div id="paymentList"></div>
 </section>
@@ -165,20 +166,45 @@ const auth=getAuth(app);
 let isAdmin=false;
 let players=[],drafts=[],matches=[],manualDebts=[],payments=[];
 let lockTimer=null;
+let activityEvents=[];
 
+const $=id=>document.getElementById(id);
 const rupiah=n=>"Rp"+Number(n||0).toLocaleString("id-ID");
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const activePlayers=()=>players.filter(p=>p.active!==false);
 const playerName=id=>players.find(p=>p.id===id)?.name||"Pemain tidak ditemukan";
 const dateText=t=>t?.toDate?t.toDate().toLocaleString("id-ID"):"Waktu tidak tersedia";
-const error=e=>{console.error(e);alert("Terjadi kesalahan: "+(e.message||e));};
-const adminOnly=()=>{if(!isAdmin){alert("Fitur ini khusus admin.");return false;}return true;};
 
-function setStatus(s){document.getElementById("connection").textContent=s;}
+function notifyError(e){
+ console.error(e);
+ alert("Terjadi kesalahan: "+(e?.message||e));
+}
+function adminOnly(){
+ if(!isAdmin){alert("Fitur ini khusus admin.");return false;}
+ return true;
+}
+function validAmount(n){
+ return Number.isSafeInteger(n)&&n>0;
+}
+function setStatus(s){$("connection").textContent=s;}
+
+function resetLock(){
+ clearTimeout(lockTimer);
+ if(isAdmin)lockTimer=setTimeout(()=>adminLogout(true),15*60*1000);
+}
+function recordActivity(){
+ if(isAdmin)resetLock();
+}
+["click","keydown","touchstart"].forEach(event=>{
+ document.addEventListener(event,recordActivity,{passive:true});
+});
 
 function fillSelect(id){
- const el=document.getElementById(id),old=el.value;
- el.innerHTML='<option value="">Pilih pemain</option>'+activePlayers().map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("");
+ const el=$(id);
+ if(!el)return;
+ const old=el.value;
+ el.innerHTML='<option value="">Pilih pemain</option>'+
+ activePlayers().map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
  if(activePlayers().some(p=>p.id===old))el.value=old;
 }
 function refreshSelects(){
@@ -186,21 +212,16 @@ function refreshSelects(){
 }
 
 function setAdminUI(){
- document.getElementById("loginArea").classList.toggle("hidden",isAdmin);
- document.getElementById("adminArea").classList.toggle("hidden",!isAdmin);
- document.getElementById("adminBadge").textContent=isAdmin?"ADMIN AKTIF":"MODE PUBLIK";
- document.getElementById("manualForm").classList.toggle("hidden",!isAdmin);
- document.getElementById("paymentForm").classList.toggle("hidden",!isAdmin);
+ $("loginArea").classList.toggle("hidden",isAdmin);
+ $("adminArea").classList.toggle("hidden",!isAdmin);
+ $("adminBadge").textContent=isAdmin?"ADMIN AKTIF":"MODE PUBLIK";
+ $("manualForm").classList.toggle("hidden",!isAdmin);
+ $("paymentForm").classList.toggle("hidden",!isAdmin);
  render();
 }
 
-function resetLock(){
- clearTimeout(lockTimer);
- if(isAdmin)lockTimer=setTimeout(()=>adminLogout(true),15*60*1000);
-}
-
-window.adminLogin=async()=>{
- const password=document.getElementById("adminPassword").value;
+async function adminLogin(){
+ const password=$("adminPassword").value;
  if(!password)return alert("Masukkan password admin.");
  try{
   const cred=await signInWithEmailAndPassword(auth,ADMIN_EMAIL,password);
@@ -208,16 +229,19 @@ window.adminLogin=async()=>{
    await signOut(auth);
    throw new Error("Akun bukan admin.");
   }
-  document.getElementById("adminPassword").value="";
+  $("adminPassword").value="";
   resetLock();
- }catch(e){error(e);}
-};
-
-window.adminLogout=async(auto=false)=>{
+ }catch(e){notifyError(e);}
+}
+async function adminLogout(auto=false){
  clearTimeout(lockTimer);
- try{await signOut(auth);}catch(e){error(e);}
+ try{await signOut(auth);}catch(e){notifyError(e);}
  if(auto)alert("Sesi admin berakhir. Silakan login kembali.");
-};
+}
+
+$("loginButton").addEventListener("click",adminLogin);
+$("logoutButton").addEventListener("click",()=>adminLogout());
+$("adminPassword").addEventListener("keydown",e=>{if(e.key==="Enter")adminLogin();});
 
 onAuthStateChanged(auth,user=>{
  isAdmin=!!user&&user.uid===ADMIN_UID;
@@ -226,161 +250,178 @@ onAuthStateChanged(auth,user=>{
 });
 
 /* PEMAIN */
-window.addPlayer=async()=>{
- const name=document.getElementById("playerName").value.trim();
+async function addPlayer(){
+ const name=$("playerName").value.trim();
  if(!name)return alert("Masukkan nama pemain.");
+ if(name.length>60)return alert("Nama maksimal 60 karakter.");
+ if(players.some(p=>p.name.toLowerCase()===name.toLowerCase()))
+  return alert("Nama pemain sudah terdaftar.");
  try{
-  await addDoc(collection(db,"players"),{name,active:true,createdAt:serverTimestamp()});
-  document.getElementById("playerName").value="";
- }catch(e){error(e);}
-};
-
-window.togglePlayer=async(id,active)=>{
+  await addDoc(collection(db,"players"),{
+   name,active:true,createdAt:serverTimestamp()
+  });
+  $("playerName").value="";
+ }catch(e){notifyError(e);}
+}
+async function togglePlayer(id,active){
  try{await updateDoc(doc(db,"players",id),{active});}
- catch(e){error(e);}
-};
+ catch(e){notifyError(e);}
+}
 
-/* TRANSAKSI MATCH BERJALAN */
-window.addDraft=async()=>{
- const from=document.getElementById("draftFrom").value;
- const to=document.getElementById("draftTo").value;
- const amount=Number(document.getElementById("draftAmount").value);
- const note=document.getElementById("draftNote").value.trim();
- if(!from||!to||from===to||amount<=0)return alert("Periksa pemain dan nominal.");
+/* DRAFT TRANSAKSI */
+async function addDraft(){
+ const from=$("draftFrom").value;
+ const to=$("draftTo").value;
+ const amount=Number($("draftAmount").value);
+ const note=$("draftNote").value.trim();
+ if(!from||!to||from===to||!validAmount(amount))
+  return alert("Periksa pemain dan nominal. Nominal harus bilangan bulat positif.");
+ if(!activePlayers().some(p=>p.id===from)||!activePlayers().some(p=>p.id===to))
+  return alert("Pemain harus berstatus aktif.");
  try{
-  await addDoc(collection(db,"draftTransactions"),{from,to,amount,note,createdAt:serverTimestamp()});
-  document.getElementById("draftAmount").value="";
-  document.getElementById("draftNote").value="";
- }catch(e){error(e);}
-};
-
-window.editDraft=async(id,oldAmount,oldNote)=>{
+  await addDoc(collection(db,"draftTransactions"),{
+   from,to,amount,note,createdAt:serverTimestamp()
+  });
+  $("draftAmount").value="";
+  $("draftNote").value="";
+ }catch(e){notifyError(e);}
+}
+async function editDraft(id,oldAmount,oldNote){
  if(!adminOnly())return;
- const amount=Number(prompt("Nominal baru:",oldAmount));
- if(!amount||amount<=0)return;
+ const raw=prompt("Nominal baru:",oldAmount);
+ if(raw===null)return;
+ const amount=Number(raw);
+ if(!validAmount(amount))return alert("Nominal tidak valid.");
  const note=prompt("Keterangan:",oldNote||"");
  if(note===null)return;
- try{await updateDoc(doc(db,"draftTransactions",id),{amount,note});}
- catch(e){error(e);}
-};
-
-window.deleteDraft=async id=>{
+ try{await updateDoc(doc(db,"draftTransactions",id),{amount,note:note.slice(0,200)});}
+ catch(e){notifyError(e);}
+}
+async function deleteDraft(id){
  if(!adminOnly()||!confirm("Hapus transaksi ini?"))return;
- try{await deleteDoc(doc(db,"draftTransactions",id));}catch(e){error(e);}
-};
-
-window.finishMatch=async()=>{
+ try{await deleteDoc(doc(db,"draftTransactions",id));}
+ catch(e){notifyError(e);}
+}
+async function finishMatch(){
+ if(!adminOnly())return;
  if(!drafts.length)return alert("Belum ada transaksi.");
- if(!confirm("Simpan match ini ke riwayat?"))return;
+ if(!confirm("Simpan seluruh transaksi berjalan sebagai satu match?"))return;
  try{
   const batch=writeBatch(db);
   const matchRef=doc(collection(db,"matches"));
   batch.set(matchRef,{
-   entries:drafts.map(d=>({from:d.from,to:d.to,amount:d.amount,note:d.note||""})),
+   entries:drafts.map(d=>({
+    from:d.from,to:d.to,amount:Number(d.amount),note:d.note||""
+   })),
    createdAt:serverTimestamp()
   });
   drafts.forEach(d=>batch.delete(doc(db,"draftTransactions",d.id)));
   await batch.commit();
   alert("Match berhasil disimpan.");
- }catch(e){error(e);}
-};
+ }catch(e){notifyError(e);}
+}
 
 /* UTANG MANUAL */
-window.addManualDebt=async()=>{
+async function addManualDebt(){
  if(!adminOnly())return;
- const from=document.getElementById("manualFrom").value;
- const to=document.getElementById("manualTo").value;
- const amount=Number(document.getElementById("manualAmount").value);
- const note=document.getElementById("manualNote").value.trim();
- if(!from||!to||from===to||amount<=0)return alert("Periksa data utang.");
+ const from=$("manualFrom").value,to=$("manualTo").value;
+ const amount=Number($("manualAmount").value);
+ const note=$("manualNote").value.trim();
+ if(!from||!to||from===to||!validAmount(amount))
+  return alert("Periksa data utang.");
  try{
   await addDoc(collection(db,"manualDebts"),{from,to,amount,note,createdAt:serverTimestamp()});
-  document.getElementById("manualAmount").value="";
-  document.getElementById("manualNote").value="";
- }catch(e){error(e);}
-};
-
-window.editManual=async(id,oldAmount,oldNote)=>{
+  $("manualAmount").value="";
+  $("manualNote").value="";
+ }catch(e){notifyError(e);}
+}
+async function editManual(id,oldAmount,oldNote){
  if(!adminOnly())return;
- const amount=Number(prompt("Nominal baru:",oldAmount));
- if(!amount||amount<=0)return;
+ const raw=prompt("Nominal baru:",oldAmount);
+ if(raw===null)return;
+ const amount=Number(raw);
+ if(!validAmount(amount))return alert("Nominal tidak valid.");
  const note=prompt("Keterangan:",oldNote||"");
  if(note===null)return;
- try{await updateDoc(doc(db,"manualDebts",id),{amount,note});}
- catch(e){error(e);}
-};
-
-window.deleteManual=async id=>{
+ try{await updateDoc(doc(db,"manualDebts",id),{amount,note:note.slice(0,200)});}
+ catch(e){notifyError(e);}
+}
+async function deleteManual(id){
  if(!adminOnly()||!confirm("Hapus utang manual ini?"))return;
- try{await deleteDoc(doc(db,"manualDebts",id));}catch(e){error(e);}
-};
+ try{await deleteDoc(doc(db,"manualDebts",id));}
+ catch(e){notifyError(e);}
+}
 
 /* PEMBAYARAN */
-window.addPayment=async()=>{
+async function addPayment(){
  if(!adminOnly())return;
- const from=document.getElementById("paymentFrom").value;
- const to=document.getElementById("paymentTo").value;
- const amount=Number(document.getElementById("paymentAmount").value);
- const note=document.getElementById("paymentNote").value.trim();
- if(!from||!to||from===to||amount<=0)return alert("Periksa data pembayaran.");
+ const from=$("paymentFrom").value,to=$("paymentTo").value;
+ const amount=Number($("paymentAmount").value);
+ const note=$("paymentNote").value.trim();
+ if(!from||!to||from===to||!validAmount(amount))
+  return alert("Periksa data pembayaran.");
  try{
   await addDoc(collection(db,"payments"),{from,to,amount,note,createdAt:serverTimestamp()});
-  document.getElementById("paymentAmount").value="";
-  document.getElementById("paymentNote").value="";
- }catch(e){error(e);}
-};
-
-window.editPayment=async(id,oldAmount,oldNote)=>{
+  $("paymentAmount").value="";
+  $("paymentNote").value="";
+ }catch(e){notifyError(e);}
+}
+async function editPayment(id,oldAmount,oldNote){
  if(!adminOnly())return;
- const amount=Number(prompt("Nominal pembayaran baru:",oldAmount));
- if(!amount||amount<=0)return;
+ const raw=prompt("Nominal pembayaran baru:",oldAmount);
+ if(raw===null)return;
+ const amount=Number(raw);
+ if(!validAmount(amount))return alert("Nominal tidak valid.");
  const note=prompt("Catatan pembayaran:",oldNote||"");
  if(note===null)return;
- try{await updateDoc(doc(db,"payments",id),{amount,note});}
- catch(e){error(e);}
-};
-
-window.deletePayment=async id=>{
+ try{await updateDoc(doc(db,"payments",id),{amount,note:note.slice(0,200)});}
+ catch(e){notifyError(e);}
+}
+async function deletePayment(id){
  if(!adminOnly()||!confirm("Hapus catatan pembayaran ini?"))return;
- try{await deleteDoc(doc(db,"payments",id));}catch(e){error(e);}
-};
+ try{await deleteDoc(doc(db,"payments",id));}
+ catch(e){notifyError(e);}
+}
 
-/* EDIT DAN HAPUS TRANSAKSI DI RIWAYAT MATCH */
-window.editMatchEntry=async(matchId,index,entry)=>{
+/* RIWAYAT MATCH */
+async function editMatchEntry(matchId,index){
  if(!adminOnly())return;
- const amount=Number(prompt("Nominal transaksi baru:",entry.amount));
- if(!amount||amount<=0)return;
+ const match=matches.find(m=>m.id===matchId);
+ if(!match||!match.entries?.[index])return;
+ const entry=match.entries[index];
+ const raw=prompt("Nominal transaksi baru:",entry.amount);
+ if(raw===null)return;
+ const amount=Number(raw);
+ if(!validAmount(amount))return alert("Nominal tidak valid.");
  const note=prompt("Keterangan:",entry.note||"");
  if(note===null)return;
  try{
-  const match=matches.find(m=>m.id===matchId);
   const entries=[...match.entries];
-  entries[index]={...entries[index],amount,note};
+  entries[index]={...entries[index],amount,note:note.slice(0,200)};
   await updateDoc(doc(db,"matches",matchId),{entries});
- }catch(e){error(e);}
-};
-
-window.deleteMatchEntry=async(matchId,index)=>{
+ }catch(e){notifyError(e);}
+}
+async function deleteMatchEntry(matchId,index){
  if(!adminOnly()||!confirm("Hapus transaksi dari match ini?"))return;
  try{
   const match=matches.find(m=>m.id===matchId);
+  if(!match)return;
   const entries=match.entries.filter((_,i)=>i!==index);
-  if(entries.length===0){
-   if(confirm("Ini transaksi terakhir. Hapus seluruh match?")){
+  if(!entries.length){
+   if(confirm("Ini transaksi terakhir. Hapus seluruh match?"))
     await deleteDoc(doc(db,"matches",matchId));
-   }
   }else{
    await updateDoc(doc(db,"matches",matchId),{entries});
   }
- }catch(e){error(e);}
-};
-
-window.deleteMatch=async id=>{
+ }catch(e){notifyError(e);}
+}
+async function deleteMatch(id){
  if(!adminOnly()||!confirm("Hapus seluruh riwayat match ini?"))return;
- try{await deleteDoc(doc(db,"matches",id));}catch(e){error(e);}
-};
+ try{await deleteDoc(doc(db,"matches",id));}
+ catch(e){notifyError(e);}
+}
 
-/* HITUNG SALDO BERSIH ANTAR PEMAIN */
+/* PERHITUNGAN SALDO */
 function calculateBalances(){
  const ids=players.map(p=>p.id);
  const matrix={};
@@ -390,14 +431,15 @@ function calculateBalances(){
  });
 
  function addDebt(from,to,amount){
-  if(matrix[from]&&matrix[from][to]!==undefined)matrix[from][to]+=Number(amount||0);
+  if(matrix[from]&&matrix[from][to]!==undefined&&from!==to)
+   matrix[from][to]+=Number(amount||0);
  }
 
  matches.forEach(m=>(m.entries||[]).forEach(e=>addDebt(e.from,e.to,e.amount)));
  manualDebts.forEach(d=>addDebt(d.from,d.to,d.amount));
 
- // Pembayaran mengurangi utang dari pemain pembayar ke penerima.
- payments.forEach(p=>addDebt(p.to,p.from,-Number(p.amount||0)));
+ // Pembayaran mengurangi utang pembayar kepada penerima.
+ payments.forEach(p=>addDebt(p.from,p.to,-Number(p.amount||0)));
 
  const balances=[];
  for(let i=0;i<ids.length;i++){
@@ -411,54 +453,59 @@ function calculateBalances(){
  return balances;
 }
 
+/* RENDER */
+function actionButton(label,action,params=[],cls="secondary"){
+ const encoded=encodeURIComponent(JSON.stringify(params));
+ return `<button class="${cls}" data-action="${action}" data-params="${encoded}">${label}</button>`;
+}
+
 function render(){
  refreshSelects();
 
- document.getElementById("playersList").innerHTML=players.length?
+ $("playersList").innerHTML=players.length?
  players.map(p=>`
  <div class="item">
  <div class="row">
  <div><b>${esc(p.name)}</b> ${p.active===false?'<span class="pill">NONAKTIF</span>':''}</div>
- <div style="text-align:right">${isAdmin?`<button class="secondary" onclick="togglePlayer('${p.id}',${p.active===false})">${p.active===false?"Aktifkan":"Nonaktifkan"}</button>`:""}</div>
+ <div style="text-align:right">${isAdmin?actionButton(p.active===false?"Aktifkan":"Nonaktifkan","togglePlayer",[p.id,p.active===false]):""}</div>
  </div>
  </div>`).join(""):"<p class='muted'>Belum ada pemain.</p>";
 
- document.getElementById("draftList").innerHTML=drafts.length?
+ $("draftList").innerHTML=drafts.length?
  drafts.map(d=>`
  <div class="item">
  <b>${esc(playerName(d.from))}</b> → <b>${esc(playerName(d.to))}</b>
  <div class="money">${rupiah(d.amount)}</div>
  <small>${esc(d.note||"Tanpa keterangan")}</small>
- ${isAdmin?`<div><button class="secondary" onclick="editDraft('${d.id}',${d.amount},'${esc(d.note||"")}')">Edit</button><button class="danger" onclick="deleteDraft('${d.id}')">Hapus</button></div>`:""}
+ ${isAdmin?`<div>${actionButton("Edit","editDraft",[d.id,d.amount,d.note||""])}${actionButton("Hapus","deleteDraft",[d.id],"danger")}</div>`:""}
  </div>`).join(""):"<p class='muted'>Belum ada transaksi berjalan.</p>";
 
- document.getElementById("manualList").innerHTML=manualDebts.length?
+ $("manualList").innerHTML=manualDebts.length?
  manualDebts.map(d=>`
  <div class="item">
  <b>${esc(playerName(d.from))}</b> → <b>${esc(playerName(d.to))}</b>
  <div class="money">${rupiah(d.amount)}</div>
  <small>${esc(d.note||"Tanpa keterangan")} · ${dateText(d.createdAt)}</small>
- ${isAdmin?`<div><button class="secondary" onclick="editManual('${d.id}',${d.amount},'${esc(d.note||"")}')">Edit</button><button class="danger" onclick="deleteManual('${d.id}')">Hapus</button></div>`:""}
+ ${isAdmin?`<div>${actionButton("Edit","editManual",[d.id,d.amount,d.note||""])}${actionButton("Hapus","deleteManual",[d.id],"danger")}</div>`:""}
  </div>`).join(""):"<p class='muted'>Belum ada utang manual.</p>";
 
- document.getElementById("paymentList").innerHTML=payments.length?
+ $("paymentList").innerHTML=payments.length?
  payments.map(p=>`
  <div class="item">
  <b>${esc(playerName(p.from))}</b> membayar <b>${esc(playerName(p.to))}</b>
  <div class="money">${rupiah(p.amount)}</div>
  <small>${esc(p.note||"Tanpa catatan")} · ${dateText(p.createdAt)}</small>
- ${isAdmin?`<div><button class="secondary" onclick="editPayment('${p.id}',${p.amount},'${esc(p.note||"")}')">Edit</button><button class="danger" onclick="deletePayment('${p.id}')">Hapus</button></div>`:""}
+ ${isAdmin?`<div>${actionButton("Edit","editPayment",[p.id,p.amount,p.note||""])}${actionButton("Hapus","deletePayment",[p.id],"danger")}</div>`:""}
  </div>`).join(""):"<p class='muted'>Belum ada pembayaran.</p>";
 
  const balances=calculateBalances();
- document.getElementById("balances").innerHTML=balances.length?
+ $("balances").innerHTML=balances.length?
  balances.map(b=>`
  <div class="item">
  <b>${esc(playerName(b.from))}</b> berutang kepada <b>${esc(playerName(b.to))}</b>
  <div class="money">${rupiah(b.amount)}</div>
  </div>`).join(""):"<p class='muted'>Semua saldo utang sudah bersih.</p>";
 
- // Akumulasi piutang dan utang bersih untuk seluruh pemain.
  const credit=Object.fromEntries(players.map(p=>[p.id,0]));
  const debt=Object.fromEntries(players.map(p=>[p.id,0]));
  balances.forEach(b=>{
@@ -466,25 +513,25 @@ function render(){
   debt[b.from]+=b.amount;
  });
 
- const sortedCredit=[...players].sort((a,b)=>credit[b.id]-credit[a.id]);
- const sortedDebt=[...players].sort((a,b)=>debt[b.id]-debt[a.id]);
+ const sortedCredit=[...players].sort((a,b)=>credit[b.id]-credit[a.id]||a.name.localeCompare(b.name));
+ const sortedDebt=[...players].sort((a,b)=>debt[b.id]-debt[a.id]||a.name.localeCompare(b.name));
 
- document.getElementById("allCreditors").innerHTML=sortedCredit.length?
+ $("allCreditors").innerHTML=sortedCredit.length?
  sortedCredit.map((p,i)=>`
  <div class="item rank">
  <div><b>${i+1}. ${esc(p.name)}</b><br><small>${p.active===false?"Pemain nonaktif":"Pemain aktif"}</small></div>
  <div class="money">${rupiah(credit[p.id])}</div>
  </div>`).join(""):"<p class='muted'>Belum ada pemain.</p>";
 
- document.getElementById("allDebtors").innerHTML=sortedDebt.length?
+ $("allDebtors").innerHTML=sortedDebt.length?
  sortedDebt.map((p,i)=>`
  <div class="item rank">
  <div><b>${i+1}. ${esc(p.name)}</b><br><small>${p.active===false?"Pemain nonaktif":"Pemain aktif"}</small></div>
  <div class="money">${rupiah(debt[p.id])}</div>
  </div>`).join(""):"<p class='muted'>Belum ada pemain.</p>";
 
- document.getElementById("matchesList").innerHTML=matches.length?
- matches.map(m=>`
+ $("matchesList").innerHTML=matches.length?
+ [...matches].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).map(m=>`
  <div class="item">
  <b>Match · ${dateText(m.createdAt)}</b>
  ${(m.entries||[]).map((e,i)=>`
@@ -492,15 +539,37 @@ function render(){
  ${esc(playerName(e.from))} → ${esc(playerName(e.to))}
  <div class="money">${rupiah(e.amount)}</div>
  <small>${esc(e.note||"Tanpa keterangan")}</small>
- ${isAdmin?`<div><button class="secondary" onclick='editMatchEntry("${m.id}",${i},${JSON.stringify(e).replace(/'/g,"&#39;")})'>Edit transaksi</button><button class="danger" onclick="deleteMatchEntry('${m.id}',${i})">Hapus transaksi</button></div>`:""}
+ ${isAdmin?`<div>${actionButton("Edit transaksi","editMatchEntry",[m.id,i])}${actionButton("Hapus transaksi","deleteMatchEntry",[m.id,i],"danger")}</div>`:""}
  </div>`).join("")}
- ${isAdmin?`<button class="danger" onclick="deleteMatch('${m.id}')">Hapus seluruh match</button>`:""}
+ ${isAdmin?actionButton("Hapus seluruh match","deleteMatch",[m.id],"danger"):""}
  </div>`).join(""):"<p class='muted'>Belum ada riwayat match.</p>";
 }
 
-/* REAL-TIME FIRESTORE LISTENERS */
+/* EVENT HANDLERS AMAN */
+document.addEventListener("click",async e=>{
+ const btn=e.target.closest("[data-action]");
+ if(!btn)return;
+ let params;
+ try{params=JSON.parse(decodeURIComponent(btn.dataset.params));}
+ catch{return alert("Data tombol tidak valid.");}
+ const actions={
+  togglePlayer,editDraft,deleteDraft,editManual,deleteManual,
+  editPayment,deletePayment,editMatchEntry,deleteMatchEntry,deleteMatch
+ };
+ const fn=actions[btn.dataset.action];
+ if(fn)await fn(...params);
+});
+
+$("addPlayerButton").addEventListener("click",addPlayer);
+$("addDraftButton").addEventListener("click",addDraft);
+$("finishMatchButton").addEventListener("click",finishMatch);
+$("addManualButton").addEventListener("click",addManualDebt);
+$("addPaymentButton").addEventListener("click",addPayment);
+
+/* REALTIME FIRESTORE */
+const unsubscribers=[];
 function listen(name,callback){
- onSnapshot(collection(db,name),snapshot=>{
+ const unsub=onSnapshot(collection(db,name),snapshot=>{
   callback(snapshot.docs.map(d=>({id:d.id,...d.data()})));
   setStatus("Terhubung · Sinkronisasi real-time aktif");
   render();
@@ -508,6 +577,7 @@ function listen(name,callback){
   console.error(name,e);
   setStatus("Gagal memuat "+name+": "+e.message);
  });
+ unsubscribers.push(unsub);
 }
 
 listen("players",v=>players=v);
