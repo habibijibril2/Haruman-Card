@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "haruman-card-v1";
+const CACHE_NAME = "haruman-card-v2";
 
 const FILES = [
   "./",
@@ -32,16 +32,38 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
+  const url = new URL(event.request.url);
+
+  if (url.origin !== self.location.origin) return;
+
+  const isPage =
+    event.request.mode === "navigate" ||
+    url.pathname.endsWith("/index.html");
+
+  if (isPage) {
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" })
+        .then(response => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache =>
+              cache.put("./index.html", copy)
+            );
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cache = await caches.open(CACHE_NAME);
+          return await cache.match("./index.html") || Response.error();
+        })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === "navigate") {
-          return caches.match("./index.html");
-        }
-        return Response.error();
-      });
+      return cached || fetch(event.request);
     })
   );
 });
+
