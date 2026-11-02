@@ -396,20 +396,35 @@ async function editMatchEntry(matchId,index){
   await updateDoc(doc(db,"matches",matchId),{entries});
  }catch(e){notifyError(e);}
 }
+
+/* PERUBAHAN 1: PERBARUI TAMPILAN SETELAH TRANSAKSI RIWAYAT DIHAPUS */
 async function deleteMatchEntry(matchId,index){
  if(!confirm("Hapus transaksi dari match ini?"))return;
  try{
   const match=matches.find(m=>m.id===matchId);if(!match)return;
   const entries=match.entries.filter((_,i)=>i!==index);
+
   if(!entries.length){
-   if(confirm("Ini transaksi terakhir. Hapus seluruh match?"))
-    await deleteDoc(doc(db,"matches",matchId));
-  }else await updateDoc(doc(db,"matches",matchId),{entries});
+   if(!confirm("Ini transaksi terakhir. Hapus seluruh match?"))return;
+   await deleteDoc(doc(db,"matches",matchId));
+   matches=matches.filter(m=>m.id!==matchId);
+  }else{
+   await updateDoc(doc(db,"matches",matchId),{entries});
+   matches=matches.map(m=>m.id===matchId?{...m,entries}:m);
+  }
+
+  render();
  }catch(e){notifyError(e);}
 }
+
+/* PERUBAHAN 2: PERBARUI PAPAN PERINGKAT SETELAH MATCH DIHAPUS */
 async function deleteMatch(id){
  if(!confirm("Hapus seluruh riwayat match ini? Saldo papan peringkat akan dihitung ulang."))return;
- try{await deleteDoc(doc(db,"matches",id));}catch(e){notifyError(e);}
+ try{
+  await deleteDoc(doc(db,"matches",id));
+  matches=matches.filter(m=>m.id!==id);
+  render();
+ }catch(e){notifyError(e);}
 }
 
 /* PERHITUNGAN DAN ALOKASI UTANG */
@@ -466,8 +481,37 @@ function allocateDebts(source){
  }
  return result;
 }
+
+/* PERUBAHAN 3: HITUNG UTANG MATCH BERJALAN DAN URUTKAN TRANSAKSI TERBARU */
 function matchBalances(){
- return allocateDebts({matches:[],manual:[],payments:[]});
+ const balances=allocateDebts({
+  matches:[{entries:drafts}],
+  manual:[],
+  payments:[]
+ });
+
+ function latestTransaction(from,to){
+  return drafts.reduce((latest,d)=>{
+   if(
+    (d.from===from&&d.to===to)||
+    (d.from===to&&d.to===from)
+   ){
+    const time=d.createdAt?.toMillis
+     ?d.createdAt.toMillis()
+     :d.createdAt?.seconds
+      ?d.createdAt.seconds*1000
+      :0;
+    return Math.max(latest,time);
+   }
+   return latest;
+  },0);
+ }
+
+ return balances.sort((a,b)=>{
+  const timeA=latestTransaction(a.from,a.to);
+  const timeB=latestTransaction(b.from,b.to);
+  return timeB-timeA;
+ });
 }
 function leaderboardBalances(){
  return allocateDebts({matches,manual:manualDebts,payments});
